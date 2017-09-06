@@ -5,8 +5,6 @@
  */
 package Conexion;
 
-
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,9 +21,12 @@ import oracle.jdbc.OracleTypes;
  * @author jimen
  */
 public class DB {
+
     private Connection conexion;
     public final double HWT = 0.80;
     public int NumTs;
+    public int temp;
+
     public Connection getConexion() {
         return conexion;
     }
@@ -38,8 +39,8 @@ public class DB {
         try {
             Class.forName("oracle.jdbc.OracleDriver");
             Properties info = new Properties();
-            info.setProperty("user", "niva");
-            info.setProperty("password", "niva");
+            info.setProperty("user", "maikol");
+            info.setProperty("password", "maikol");
             //info.setProperty("internal_logon","sysdba");
             conexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", info);
             if (conexion != null) {
@@ -67,23 +68,24 @@ public class DB {
             System.err.println(e.getMessage());
         }
     }
-    
-
 
     public String[] getTableSpace_name() {
         Statement ts;
         ResultSet rs;
-        int size= getNumTS();
+        int size = getNumTS();
         String[] names = new String[size];
         Conectar();
         CallableStatement cs = null;
         try {
             ts = conexion.createStatement();
             rs = ts.executeQuery("select tablespace_name from dba_tablespaces order by(tablespace_name)");
-            
+
             int i = 0;
-            while(rs.next()){
+            while (rs.next()) {
                 names[i] = rs.getString("tablespace_name");
+                if ("TEMP".equals(names[i])) {
+                    temp = i;
+                }
                 System.out.println(rs.getString("tablespace_name"));
                 i++;
             }
@@ -95,7 +97,7 @@ public class DB {
         return null;
     }
 
-    public int getNumTS(){
+    public int getNumTS() {
         Statement ts;
         ResultSet rs;
         Conectar();
@@ -112,8 +114,8 @@ public class DB {
         }
         return 0;
     }
-    
-    public void getDays(){
+
+    public void getDays() {
         Statement ts;
         ResultSet rs;
         Conectar();
@@ -123,53 +125,69 @@ public class DB {
             rs = ts.executeQuery("select Round(Monitor('SYSAUX',1)*24,2) ax from dual");
             rs.next();
             double tmp = rs.getDouble("ax");
-            System.out.println("********"+tmp);
+            System.out.println("********" + tmp);
             System.out.println("Conexion.DB.getDays()");
             conexion.close();
         } catch (SQLException e) {
             System.err.print(e.getMessage());
         }
     }
-    
-    public double[][] getSize(){
+
+    public double[][] getSize() {
         ResultSet rs;
+        ResultSet rs1;
         Conectar();
         CallableStatement cs = null;
-        try{
+        CallableStatement cs1 = null;
+        try {
             String sql = "{call getMemory(?)}";
+            String sql1 = "{call Getmemorytemp(?)}";
             cs = conexion.prepareCall(sql);
-            //cs.registerOutParameter(1, OracleTypes.FLOAT);
+            cs1 = conexion.prepareCall(sql1);
             cs.registerOutParameter(1, OracleTypes.CURSOR);
+            cs1.registerOutParameter(1, OracleTypes.CURSOR);
             cs.executeQuery();
-            rs= (ResultSet) cs.getObject(1);
-            //System.out.println(rs.getFloat(1));
-            //return Double.valueOf(String.valueOf(rs.getFloat(1)));
-            
+            cs1.executeQuery();
+            rs = (ResultSet) cs.getObject(1);
+            rs1 = (ResultSet) cs1.getObject(1);
+
             double[][] data = new double[][]{
                 new double[NumTs],
                 new double[NumTs],
-                new double[NumTs],
-            };
-            for (int i = 0; rs.next(); i++) {
-                if(i == 2)
-                    i++;
-                data[0][i] = rs.getDouble(4);
-                
-                double topeA = rs.getDouble(4) * HWT;
-                if(rs.getDouble(2) > topeA){
-                    data[1][i] = topeA;
-                    data[2][i] = rs.getDouble(2) - topeA;
+                new double[NumTs],};
+            for (int i = 0; i < 5; i++) {
+                if (i == temp) {
+                    rs1.next();
+                    double usado = rs1.getDouble(2) - rs1.getDouble(3);
+                    data[0][i] = usado;
+
+                    double topeA1 = rs1.getDouble(2) * HWT;
+                    if (usado > topeA1) {
+                        data[2][i] = rs1.getDouble(2) - usado;
+                    } else {
+                        double a = rs1.getDouble(2) - topeA1;
+                        data[1][i] = rs1.getDouble(3) - a;
+                        data[2][i] = a;
+                    }
+                } else {
+                    rs.next();
+                    data[0][i] = rs.getDouble(2);
+
+                    double topeA = rs.getDouble(4) * HWT;
+                    if (rs.getDouble(2) > topeA) {
+                        //data[1][i] = topeA - rs.getDouble(2) ;
+                        data[2][i] = rs.getDouble(4) - rs.getDouble(2);
+                    } else {
+                        double a = rs.getDouble(4) - topeA;
+                        data[1][i] = rs.getDouble(3) - a;
+                        data[2][i] = a;
+                    }
                 }
-                else
-                    data[1][i] = rs.getDouble(2);
             }
             return data;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return null;
-    } 
+    }
 }
-
-
-

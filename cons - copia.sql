@@ -3,6 +3,8 @@ grant select on v_$instance TO niva;
 grant select on dba_free_space to niva;
 grant select on v_$temp_space_header to niva;
 grant select on dba_temp_files to niva;
+grant select on dba_segments to maikol;
+
 
 
 select Monitor('USERS',0.80) from dual;
@@ -63,28 +65,6 @@ select tablespace_name from dba_tablespaces;
 SELECT COUNT(tablespace_name) FROM dba_tablespaces;
 
 
-
-
-
-select df.tablespace_name "Tablespace",
-totalusedspace "Used MB",
-(df.totalspace - tu.totalusedspace) "Free MB",
-df.totalspace "Total MB",
-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))
-"Pct. Free"
-from
-(select tablespace_name,
-round(sum(bytes) / 1048576) TotalSpace
-from dba_data_files 
-group by tablespace_name) df,
-(select round(sum(bytes)/(1024*1024)) totalusedspace, tablespace_name
-from dba_segments 
-group by tablespace_name order by(tablespace_name)) tu
-where df.tablespace_name = tu.tablespace_name;
-
-
-
-
 create or replace Procedure getMemory(c1 out SYS_REFCURSOR)/*consulta original*/
 AS
 begin
@@ -126,6 +106,21 @@ begin
 	end;
 /
 
+create or replace Procedure getMemoryTemp(c1 out SYS_REFCURSOR)
+AS
+begin
+   open c1 for SELECT df.tablespace_name tspace,
+       fs.bytes / (1024 * 1024),
+       SUM(df.bytes_free) / (1024 * 1024),
+  FROM dba_temp_files fs,
+       (SELECT tablespace_name,bytes_free,bytes_used
+          FROM v$temp_space_header
+         GROUP BY tablespace_name,bytes_free,bytes_used) df
+ WHERE fs.tablespace_name (+)  = df.tablespace_name
+ GROUP BY df.tablespace_name,fs.bytes,df.bytes_free,df.bytes_used;
+ 
+   end;
+/
 
 
 
