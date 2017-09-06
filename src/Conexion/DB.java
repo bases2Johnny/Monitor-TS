@@ -23,9 +23,10 @@ import oracle.jdbc.OracleTypes;
 public class DB {
 
     private Connection conexion;
-    public final double HWT = 0.80;
+    public final double HWT = 0.99;
     public int NumTs;
     public int temp;
+    public ArrayList<Object> freeMem = new ArrayList<>();
 
     public Connection getConexion() {
         return conexion;
@@ -116,17 +117,27 @@ public class DB {
     }
 
     public void getDays() {
+        for (int i = 0; i < freeMem.size(); i++) {
+            ArrayList<Object> a1 = (ArrayList<Object>) freeMem.get(i);
+            System.out.println(a1.get(0));
+            System.out.println(a1.get(1));
+        }
         Statement ts;
         ResultSet rs;
         Conectar();
         CallableStatement cs = null;
         try {
-            ts = conexion.createStatement();
-            rs = ts.executeQuery("select Round(Monitor('SYSAUX',1)*24,2) ax from dual");
-            rs.next();
-            double tmp = rs.getDouble("ax");
-            System.out.println("********" + tmp);
-            System.out.println("Conexion.DB.getDays()");
+            for (int i = 0; i < freeMem.size(); i++) {
+                ArrayList<Object> a1 = (ArrayList<Object>) freeMem.get(i);
+                if (!a1.get(0).equals("UNDOTBS1")) {
+                    ts = conexion.createStatement();
+                    double ax = (Double)a1.get(1)*1024*1024;
+                    rs = ts.executeQuery("select (Monitor('" + a1.get(0) + "',10," + ax + ")) ax from dual");
+                    rs.next();
+                    double tmp = rs.getDouble("ax");
+                    System.out.println(a1.get(0)+ ": " + tmp);
+                }
+            }
             conexion.close();
         } catch (SQLException e) {
             System.err.print(e.getMessage());
@@ -177,13 +188,25 @@ public class DB {
                     if (rs.getDouble(2) > topeA) {
                         //data[1][i] = topeA - rs.getDouble(2) ;
                         data[2][i] = rs.getDouble(4) - rs.getDouble(2);
+                        ArrayList<Object> a11 = new ArrayList<>();
+                        a11.add(rs.getString(1));
+                        a11.add(0);
+                        freeMem.add(a11);
+
                     } else {
                         double a = rs.getDouble(4) - topeA;
                         data[1][i] = rs.getDouble(3) - a;
+
+                        ArrayList<Object> a11 = new ArrayList<>();
+                        a11.add(rs.getString(1));
+                        a11.add(rs.getDouble(3) - a);
+                        freeMem.add(a11);
+
                         data[2][i] = a;
                     }
                 }
             }
+            getDays();
             return data;
         } catch (Exception e) {
             System.out.println(e.getMessage());

@@ -10,8 +10,8 @@ package monitoreots;
  * @author Admin
  */
 import Conexion.DB;
+import File.WriteFile;
 import java.awt.Color;
-import java.util.ArrayList;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -36,8 +36,7 @@ public class MonitoreoTS extends ApplicationFrame {
     }
 
     private CategoryDataset createDataset() {
-        db.getDays();
-//        db.getSize();
+        
 //        double[][] data = new double[][]{
 //            {210, 300, 320,123,456},
 //            {200, 304, 201,234,341},
@@ -47,7 +46,6 @@ public class MonitoreoTS extends ApplicationFrame {
     }
 
     private JFreeChart createChart(final CategoryDataset dataset) {
-
         final JFreeChart chart = ChartFactory.createStackedBarChart(
                 "Stacked Bar Chart ", "", "",
                 dataset, PlotOrientation.HORIZONTAL, true, true, false);
@@ -68,6 +66,7 @@ public class MonitoreoTS extends ApplicationFrame {
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);      
         demo.setVisible(true);
-   
+        WriteFile wf = new WriteFile();
+        wf.read();
     }
 }
