@@ -198,25 +198,28 @@ public class DB {
                     if (rs.getDouble(2) > topeA) {
                         //data[1][i] = topeA - rs.getDouble(2) ;
                         data[2][i] = rs.getDouble(4) - rs.getDouble(2);
+                        
                         ArrayList<Object> a11 = new ArrayList<>();
                         a11.add(rs.getString(1));
+                        a11.add(rs.getDouble(3));
                         a11.add(0);
                         freeMem.add(a11);
 
                     } else {
-                        double a = rs.getDouble(4) - topeA;
+                        double a = rs.getDouble(4) - topeA; // rojo
                         data[1][i] = rs.getDouble(3) - a;
 
                         ArrayList<Object> a11 = new ArrayList<>();
                         a11.add(rs.getString(1));
-                        a11.add(rs.getDouble(3) - a);
+                        a11.add(rs.getDouble(3));//total libre
+                        a11.add(rs.getDouble(3)-a); // azul
                         freeMem.add(a11);
 
                         data[2][i] = a;
                     }
                 }
             }
-            getDays();
+            //getDays();
             return data;
         } catch (Exception e) {
             System.out.println(e.getMessage());

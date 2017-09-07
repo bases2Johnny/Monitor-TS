@@ -29,7 +29,7 @@ public class WriteFile {
             fw = new FileWriter("Transacciones.txt", true);
             bw = new BufferedWriter(fw);
             out = new PrintWriter(bw);
-            out.println(t.getTablespace() + ";" + t.getFecha() + ";" + t.getCantRows() + ";" + t.getCantRowsDia());
+            out.print(t.getTablespace() + ";" + t.getFecha() + ";" + t.getCantRows() + ";" + t.getCantRowsDia()+",");
             out.close();
         } catch (IOException e) {
             //exception handling left as an exercise for the reader

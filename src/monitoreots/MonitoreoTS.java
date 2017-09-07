@@ -10,9 +10,9 @@ package monitoreots;
  * @author Admin
  */
 import Conexion.DB;
+import File.Transaccion;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +30,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import File.WriteFile;
 import java.awt.Color;
+import java.util.ArrayList;
 
 
 import org.jfree.chart.ChartFactory;
@@ -156,12 +157,14 @@ public class MonitoreoTS extends JFrame {
             System.err.println(e.getMessage());
         }
 
-        final MonitoreoTS demo = new MonitoreoTS("Stacked Bar Chart");
+        MonitoreoTS demo = new MonitoreoTS("Stacked Bar Chart");
         demo.ventana.pack();
         RefineryUtilities.centerFrameOnScreen(demo.ventana);
         demo.ventana.setVisible(true);
 
         WriteFile wf = new WriteFile();
-        wf.read();
+        ArrayList<Transaccion> t = WriteFile.read();
+        for(Transaccion s: t)
+            System.out.println(s.toString());
     }
 }
