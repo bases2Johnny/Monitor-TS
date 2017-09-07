@@ -10,6 +10,7 @@ package monitoreots;
  * @author Admin
  */
 import Conexion.DB;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,6 +27,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import File.WriteFile;
+import java.awt.Color;
+
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -117,8 +122,7 @@ public class MonitoreoTS extends JFrame {
     }
 
     private CategoryDataset createDataset() {
-        db.getDays();
-//        db.getSize();
+        
 //        double[][] data = new double[][]{
 //            {210, 300, 320,123,456},
 //            {200, 304, 201,234,341},
@@ -128,7 +132,6 @@ public class MonitoreoTS extends JFrame {
     }
 
     private JFreeChart createChart(final CategoryDataset dataset) {
-
         final JFreeChart chart = ChartFactory.createStackedBarChart(
                 "Stacked Bar Chart ", "", "",
                 dataset, PlotOrientation.HORIZONTAL, true, true, false);
@@ -157,5 +160,8 @@ public class MonitoreoTS extends JFrame {
         demo.ventana.pack();
         RefineryUtilities.centerFrameOnScreen(demo.ventana);
         demo.ventana.setVisible(true);
+
+        WriteFile wf = new WriteFile();
+        wf.read();
     }
 }
