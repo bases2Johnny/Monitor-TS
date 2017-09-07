@@ -23,11 +23,20 @@ import oracle.jdbc.OracleTypes;
 public class DB {
 
     private Connection conexion;
-    public final double HWT = 0.80;
+    public double HWT= 0.80;
     public int NumTs;
     public int temp;
 
+    public double getHWT() {
+        return HWT;
+    }
+
+    public void setHWT(double HWT) {
+        this.HWT = HWT/100;
+    }
+    
     public Connection getConexion() {
+        //HWT = 0.80;
         return conexion;
     }
 
@@ -39,8 +48,8 @@ public class DB {
         try {
             Class.forName("oracle.jdbc.OracleDriver");
             Properties info = new Properties();
-            info.setProperty("user", "maikol");
-            info.setProperty("password", "maikol");
+            info.setProperty("user", "alex");
+            info.setProperty("password", "alex");
             //info.setProperty("internal_logon","sysdba");
             conexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", info);
             if (conexion != null) {
