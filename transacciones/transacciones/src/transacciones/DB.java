@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -98,11 +99,13 @@ public class DB {
             ts = conexion.createStatement();
             rs = ts.executeQuery("select tablespace_name from dba_tablespaces order by(tablespace_name)");
             WriteFile wf = new WriteFile();
+            ArrayList<Transaccion> t= new ArrayList();
             while (rs.next()) {
                 if (!rs.getString(1).equals("TEMP") && !rs.getString(1).equals("UNDOTBS1")) {
-                    wf.write(this.getTran(rs.getString(1)));
+                    t.add(this.getTran(rs.getString(1)));
                 }
             }
+            wf.write(t);
             conexion.close();
         } catch (SQLException e) {
             System.err.print(e.getMessage());

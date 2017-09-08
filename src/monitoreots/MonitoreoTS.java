@@ -31,7 +31,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import File.WriteFile;
 import java.awt.Color;
 import java.util.ArrayList;
-
+import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -56,7 +56,6 @@ public class MonitoreoTS extends JFrame {
         this.ventana = new JFrame(titel);
         ventana.setLayout(new BorderLayout());
         createMenu();
-        addTable();
         dataset = createDataset();
         chart = createChart(dataset);
         chartPanel = new ChartPanel(chart);
@@ -67,6 +66,7 @@ public class MonitoreoTS extends JFrame {
         ventana.add(panel, BorderLayout.LINE_START);
         ventana.setDefaultCloseOperation(EXIT_ON_CLOSE);
         ventana.setResizable(false);
+        addTable();
         //System.out.println(ventana.getComponentCount());
     }
 
@@ -90,23 +90,36 @@ public class MonitoreoTS extends JFrame {
         menuBar.add(menu);
         ventana.add(menuBar, BorderLayout.PAGE_START);
     }
+    static String[] columnNames = {"Table Space","Time A (Blue)","Time B (Red)"};
 
     private void addTable() {
-        String[] columnNames = {"Table Space",
-            "Time A (Blue)",
-            "Time B (Red)"
-        };
         Object[][] data = {};
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
+        //DefaultTableModel model = (DefaultTableModel) table.getModel();
+        ArrayList<Object[]> array = db.getDays(-1.0);
+        //for (Object[] ob : array) {
+        //    model.addRow(ob);
+        //}
+        table.setModel(agregaRows(array));
         panel2 = new JPanel();
         panel2.add(scrollPane);
         panel2.setBackground(Color.white);
-        ventana.add(panel2,BorderLayout.LINE_END);
+        ventana.add(panel2, BorderLayout.LINE_END);
     }
-    
-    private void addCheckBoxes(){
-        
+
+    public static DefaultTableModel agregaRows(ArrayList<Object[]> l) {
+        DefaultTableModel model = new DefaultTableModel(new Object[][]{}, columnNames);
+        Object[] obj;
+        for (Object[] al : l) {
+            //obj = al.toString().split(";");
+            model.addRow(al);
+        }
+        return model;
+    }
+
+    private void addCheckBoxes() {
+
     }
 
     private void pintar() {
@@ -123,7 +136,7 @@ public class MonitoreoTS extends JFrame {
     }
 
     private CategoryDataset createDataset() {
-        
+
 //        double[][] data = new double[][]{
 //            {210, 300, 320,123,456},
 //            {200, 304, 201,234,341},
@@ -150,10 +163,10 @@ public class MonitoreoTS extends JFrame {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             JFrame.setDefaultLookAndFeelDecorated(true);
-        } catch (ClassNotFoundException |
-                InstantiationException |
-                IllegalAccessException |
-                UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
             System.err.println(e.getMessage());
         }
 
@@ -164,7 +177,8 @@ public class MonitoreoTS extends JFrame {
 
         WriteFile wf = new WriteFile();
         ArrayList<Transaccion> t = WriteFile.read();
-        for(Transaccion s: t)
+        for (Transaccion s : t) {
             System.out.println(s.toString());
+        }
     }
 }

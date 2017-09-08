@@ -1,9 +1,10 @@
-grant select on v_$sysstat TO niva;
-grant select on v_$instance TO niva;
-grant select on dba_free_space to niva;
-grant select on v_$temp_space_header to niva;
-grant select on dba_temp_files to niva;
-grant select on dba_segments to maikol;
+grant select on v_$sysstat TO alex;
+grant select on v_$instance TO alex;
+grant select on dba_free_space to alex;
+grant select on v_$temp_space_header to alex;
+grant select on dba_temp_files to alex;
+grant select on dba_segments to alex;
+grant select on  dba_data_files to alex;
 
 
 
@@ -111,7 +112,7 @@ AS
 begin
    open c1 for SELECT df.tablespace_name tspace,
        fs.bytes / (1024 * 1024),
-       SUM(df.bytes_free) / (1024 * 1024),
+       SUM(df.bytes_free) / (1024 * 1024)
   FROM dba_temp_files fs,
        (SELECT tablespace_name,bytes_free,bytes_used
           FROM v$temp_space_header

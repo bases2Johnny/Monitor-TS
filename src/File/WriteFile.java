@@ -23,10 +23,16 @@ public class WriteFile {
             String ts = null;
             int cantRows = 0;
             int cantRowsDia = 0;
+            Long tam = br.lines().count();
+            //archivo = new File("./Transacciones.txt");
+            fr = new FileReader(archivo);
+            br = new BufferedReader(fr);
             Transaccion t;
             String next;
-            while ((linea = br.readLine()) != null) {
-                if((next = br.readLine())== null){
+            Integer j=1;
+            linea = br.readLine();
+            while (linea != null) {
+                if(j == Integer.parseInt(tam.toString())){
                     String[] tableSpaces = linea.split(",");
                     for(int i=0; i< tableSpaces.length; i++){
                         String[] informacion = tableSpaces[i].split(";");
@@ -38,6 +44,8 @@ public class WriteFile {
                         trans.add(t);
                     }
                 }
+                linea = br.readLine();
+                j++;
 //                l = linea.split(";");
 //                ts = l[0];
 ////                fecha = Date.valueOf(l[1]);
